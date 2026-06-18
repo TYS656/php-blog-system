@@ -1,6 +1,5 @@
 ﻿CREATE DATABASE IF NOT EXISTS blog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE blog;
-​
 -- 用户表
 CREATE TABLE users (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -10,7 +9,6 @@ CREATE TABLE users (
     avatar VARCHAR(255) NULL COMMENT '头像路径',
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-​
 -- 文章表
 CREATE TABLE posts (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -21,7 +19,6 @@ CREATE TABLE posts (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-​
 -- 评论表
 CREATE TABLE comments (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -32,7 +29,6 @@ CREATE TABLE comments (
     FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-​
 -- 点赞表（用户+文章唯一）
 CREATE TABLE post_likes (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -54,7 +50,6 @@ CREATE TABLE comment_likes (
     FOREIGN KEY (comment_id) REFERENCES comments(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-​
 -- 收藏表（用户+文章唯一）
 CREATE TABLE post_favorites (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -65,7 +60,6 @@ CREATE TABLE post_favorites (
     FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-​
 -- 密码重置表
 CREATE TABLE password_resets (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -76,7 +70,6 @@ CREATE TABLE password_resets (
     KEY idx_email (email),
     KEY idx_token (token)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-​
 -- 站内通知表
 CREATE TABLE notifications (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
