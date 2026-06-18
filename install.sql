@@ -1,0 +1,93 @@
+﻿CREATE DATABASE IF NOT EXISTS blog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE blog;
+​
+-- 用户表
+CREATE TABLE users (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    avatar VARCHAR(255) NULL COMMENT '头像路径',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+​
+-- 文章表
+CREATE TABLE posts (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNSIGNED NOT NULL,
+    title VARCHAR(200) NOT NULL,
+    cover VARCHAR(255) NULL COMMENT '文章封面图路径',
+    content TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+​
+-- 评论表
+CREATE TABLE comments (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    post_id INT UNSIGNED NOT NULL,
+    user_id INT UNSIGNED NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+​
+-- 点赞表（用户+文章唯一）
+CREATE TABLE post_likes (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    post_id INT UNSIGNED NOT NULL,
+    user_id INT UNSIGNED NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_post_user (post_id, user_id),
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 评论点赞表（用户+评论唯一，防止重复点赞）
+CREATE TABLE comment_likes (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    comment_id INT UNSIGNED NOT NULL COMMENT '关联评论ID',
+    user_id INT UNSIGNED NOT NULL COMMENT '点赞用户ID',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_comment_user (comment_id, user_id),
+    FOREIGN KEY (comment_id) REFERENCES comments(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+​
+-- 收藏表（用户+文章唯一）
+CREATE TABLE post_favorites (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    post_id INT UNSIGNED NOT NULL,
+    user_id INT UNSIGNED NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_post_user (post_id, user_id),
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+​
+-- 密码重置表
+CREATE TABLE password_resets (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(100) NOT NULL,
+    token VARCHAR(100) NOT NULL,
+    expire_time INT UNSIGNED NOT NULL COMMENT '过期时间戳',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    KEY idx_email (email),
+    KEY idx_token (token)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+​
+-- 站内通知表
+CREATE TABLE notifications (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNSIGNED NOT NULL COMMENT '接收通知的用户ID',
+    type VARCHAR(20) NOT NULL COMMENT '通知类型：like/comment',
+    related_post_id INT UNSIGNED NULL COMMENT '关联文章ID',
+    trigger_user_id INT UNSIGNED NOT NULL COMMENT '触发通知的用户ID',
+    content VARCHAR(255) NOT NULL COMMENT '通知内容',
+    is_read TINYINT UNSIGNED DEFAULT 0 COMMENT '0未读 1已读',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (trigger_user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (related_post_id) REFERENCES posts(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
